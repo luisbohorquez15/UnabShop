@@ -55,8 +55,11 @@ fun HomeScreen(onClickLogout:()->Unit={}) {
                     IconButton(onClick = { }) {
                         Icon(Icons.Filled.ShoppingCart, "Carrito")
                     }
-                    IconButton(onClick = { }) {
-                        Icon(Icons.AutoMirrored.Filled.ExitToApp, "Carrito")
+                    IconButton(onClick = {
+                        auth.signOut()
+                        onClickLogout()
+                    }) {
+                        Icon(Icons.AutoMirrored.Filled.ExitToApp, "Salir de la app")
                     }
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
@@ -90,8 +93,7 @@ fun HomeScreen(onClickLogout:()->Unit={}) {
                     Text("no hay usuario ")
                 }
                 Button(onClick = {
-                    auth.signOut()
-                    onClickLogout()
+
                 },
                     colors= ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFFF9900)

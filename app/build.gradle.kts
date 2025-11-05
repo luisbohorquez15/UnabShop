@@ -69,4 +69,8 @@ dependencies {
 
     //authentication
     implementation(libs.firebase.auth)
+
+    //firestore y analitics
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.analytics)
 }

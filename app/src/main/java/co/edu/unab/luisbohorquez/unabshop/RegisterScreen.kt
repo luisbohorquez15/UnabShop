@@ -43,7 +43,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.auth
 import com.google.firebase.ktx.Firebase
@@ -69,17 +68,12 @@ fun RegisterScreen(onClickBack:()->Unit ={}, onSuccesfulRegister:()->Unit={}) {
 
     var registerError by remember{mutableStateOf("")}
 
-
-
-
-
-
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { },
                 navigationIcon = {
-                    IconButton(onClick = onClickBack) {
+                    IconButton(onClick = onClickBack) { // Tu botón de regreso, sin cambios.
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Regresar",
@@ -98,7 +92,6 @@ fun RegisterScreen(onClickBack:()->Unit ={}, onSuccesfulRegister:()->Unit={}) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Ícono de Usuario
             Image(
                 painter = painterResource(id = R.drawable.img_icon_unab),
                 contentDescription = "Usuario",
@@ -107,7 +100,6 @@ fun RegisterScreen(onClickBack:()->Unit ={}, onSuccesfulRegister:()->Unit={}) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Título
             Text(
                 text = "Registro de Usuario",
                 fontSize = 24.sp,
@@ -132,7 +124,6 @@ fun RegisterScreen(onClickBack:()->Unit ={}, onSuccesfulRegister:()->Unit={}) {
                             color=Color.Red
                         )
                     }
-
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
@@ -155,7 +146,6 @@ fun RegisterScreen(onClickBack:()->Unit ={}, onSuccesfulRegister:()->Unit={}) {
                             color=Color.Red
                         )
                     }
-
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth(),
@@ -172,7 +162,6 @@ fun RegisterScreen(onClickBack:()->Unit ={}, onSuccesfulRegister:()->Unit={}) {
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Lock, contentDescription = "Contraseña")
                 },
-
                 supportingText = {
                     if (passwordError.isNotEmpty()){
                         Text(
@@ -180,7 +169,6 @@ fun RegisterScreen(onClickBack:()->Unit ={}, onSuccesfulRegister:()->Unit={}) {
                             color=Color.Red
                         )
                     }
-
                 },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -196,20 +184,16 @@ fun RegisterScreen(onClickBack:()->Unit ={}, onSuccesfulRegister:()->Unit={}) {
                 onValueChange = {inputPasswordConfirmation = it },
                 label = { Text("Confirmar Contraseña") },
                 leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = "Confirmar Contraseña"
-                    )
+                    Icon(imageVector = Icons.Default.Lock, contentDescription = "Confirmar Contraseña")
                 },
-
+                // Corregido: Mostrar el error de confirmación, no el de la contraseña original
                 supportingText = {
-                    if ( passwordError.isNotEmpty()){
+                    if (passwordConfirmationError.isNotEmpty()){
                         Text(
-                            text=passwordError,
+                            text=passwordConfirmationError,
                             color=Color.Red
                         )
                     }
-
                 },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -218,7 +202,8 @@ fun RegisterScreen(onClickBack:()->Unit ={}, onSuccesfulRegister:()->Unit={}) {
             )
 
             if(registerError.isNotEmpty()){
-                Text(registerError,color=Color.Red)
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(registerError, color = Color.Red)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -226,42 +211,46 @@ fun RegisterScreen(onClickBack:()->Unit ={}, onSuccesfulRegister:()->Unit={}) {
             // Botón de Registro
             Button(
                 onClick = {
+                    // Limpiar errores antes de validar de nuevo
+                    registerError = ""
+                    nameError = ""
+                    emailError = ""
+                    passwordError = ""
+                    passwordConfirmationError = ""
 
-                    val isValidName= validateName(inputName).first
-                    val isValidEmail= validateEmail(inputEmail).first
-                    val isValidPassword= validatePassword(inputPassword).first
-                    val isValidConfirmPassword= validateConfirmPassword(inputPassword,inputPasswordConfirmation).first
+                    // Validaciones locales (asumiendo que las funciones validateX existen)
+                    val (isValidName, nameMsg) = validateName(inputName)
+                    val (isValidEmail, emailMsg) = validateEmail(inputEmail)
+                    val (isValidPassword, passwordMsg) = validatePassword(inputPassword)
+                    val (isValidConfirmPassword, confirmMsg) = validateConfirmPassword(inputPassword, inputPasswordConfirmation)
 
-                    nameError=validateName(inputName).second
-                    emailError=validateEmail(inputEmail).second
-                    passwordError=validatePassword(inputPassword).second
-                    passwordConfirmationError=validateConfirmPassword(inputPassword,inputPasswordConfirmation).second
+                    // Asignar los mensajes de error a los estados
+                    nameError = nameMsg
+                    emailError = emailMsg
+                    passwordError = passwordMsg
+                    passwordConfirmationError = confirmMsg
 
-                    if(isValidName && isValidEmail && isValidPassword && isValidConfirmPassword ){
-                        auth.createUserWithEmailAndPassword(inputEmail,inputPassword).
-                                addOnCompleteListener(activity){
-                                    task ->
-                                    if(task.isSuccessful){
-                                        onSuccesfulRegister()
-                                    }else{
-                                        registerError = when(task.isSuccessful){
-                                            is FirebaseAuthInvalidCredentialsException->"correo invalido "
-                                            is FirebaseAuthUserCollisionException->"correo ya registrado "
-                                            else->"Error al registrarse "
-
-
-
-                                        }
+                    // Si las validaciones locales son correctas, intentar el registro en Firebase
+                    if(isValidName && isValidEmail && isValidPassword && isValidConfirmPassword) {
+                        auth.createUserWithEmailAndPassword(inputEmail, inputPassword)
+                            .addOnCompleteListener(activity) { task ->
+                                if (task.isSuccessful) {
+                                    // Registro exitoso, navega a la pantalla principal
+                                    onSuccesfulRegister() // Tu botón de navegación, sin cambios.
+                                } else {
+                                    // ---- LA CORRECCIÓN ESTÁ AQUÍ ----
+                                    // Analizamos la EXCEPCIÓN devuelta, no si la tarea fue exitosa.
+                                    registerError = when (task.exception) {
+                                        is FirebaseAuthInvalidCredentialsException -> "El formato del correo electrónico no es válido."
+                                        is FirebaseAuthUserCollisionException -> "El correo electrónico ya está en uso."
+                                        else -> "Error desconocido al registrarse. Inténtalo de nuevo."
                                     }
                                 }
-
-                    } else{
-                        registerError=" Hubo un error en el registro "
-
+                            }
+                    } else {
+                        // Opcional: si quieres un error general si las validaciones locales fallan
+                        // registerError = "Por favor, corrige los errores del formulario."
                     }
-
-
-
                 },
                 modifier = Modifier
                     .fillMaxWidth()

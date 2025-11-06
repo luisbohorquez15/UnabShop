@@ -1,8 +1,6 @@
 package co.edu.unab.luisbohorquez.unabshop
 
 import android.util.Log
-import androidx.compose.foundation.layout.add
-import androidx.compose.foundation.text2.input.delete
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
@@ -54,7 +52,7 @@ class ProductoRepository {
     suspend fun agregarProducto(producto: Producto) {
         try {
             // El .await() espera a que la operación termine sin bloquear el hilo principal.
-            db.collection("productos").add(producto).await()
+            db.collection("productos").add(producto).await() // Este 'add' es de Firestore.
             Log.d("Firestore", "Producto agregado exitosamente")
         } catch (e: Exception) {
             Log.e("Firestore", "Error al agregar producto", e)
@@ -67,7 +65,7 @@ class ProductoRepository {
      */
     suspend fun eliminarProducto(productoId: String) {
         try {
-            db.collection("productos").document(productoId).delete().await()
+            db.collection("productos").document(productoId).delete().await() // Este 'delete' es de Firestore.
             Log.d("Firestore", "Producto eliminado exitosamente")
         } catch (e: Exception) {
             Log.e("Firestore", "Error al eliminar producto", e)

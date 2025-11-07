@@ -52,19 +52,19 @@ android {
 
 dependencies {
 
-    // --- VERSIONES ESTABLES Y COMPATIBLES ---
+
 
     // Dependencias de AndroidX
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3") // Versión estable compatible
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
     implementation("androidx.activity:activity-compose:1.9.0")
 
-    // BOM de Compose (Bill of Materials) - Usamos la versión estable de Junio 2024
-    val composeBom = platform("androidx.compose:compose-bom:2024.06.00") // ¡CLAVE!
+
+    val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
-    // Dependencias de la UI de Compose (ya no necesitan versión gracias al BOM)
+    // Dependencias de la UI de Compose
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")

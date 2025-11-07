@@ -44,8 +44,7 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.ktx.toObjects
 
-// Paso 1: Definir una clase de datos para el producto.
-// Los nombres de las variables (name, price) deben coincidir con los de Firestore.
+
 data class Product(
     val name: String = "",
     val price: Double = 0.0,
@@ -65,14 +64,12 @@ fun HomeScreen(onClickLogout: () -> Unit = {}) {
     // Instancia de la base de datos Firestore
     val db = Firebase.firestore
 
-    // Paso 2: Usar LaunchedEffect para cargar los datos desde Firestore.
-    // Se ejecuta de forma segura solo una vez cuando la pantalla se muestra.
+
     LaunchedEffect(Unit) {
-        // Accedemos a la colección "products". ¡Asegúrate que se llame así en tu Firebase!
+
         db.collection("products")
             .addSnapshotListener { snapshots, error ->
-                isLoading = false // Ocultamos el indicador de carga
-
+                isLoading = false
                 if (error != null) {
                     Log.w("FIRESTORE_ERROR", "Error al escuchar los datos.", error)
                     return@addSnapshotListener
@@ -104,10 +101,10 @@ fun HomeScreen(onClickLogout: () -> Unit = {}) {
                     IconButton(onClick = { /* TODO: Navegar al Carrito */ }) {
                         Icon(Icons.Filled.ShoppingCart, "Carrito")
                     }
-                    // Este es tu botón para cerrar sesión, lo conservamos intacto
+                    // Este es el botón para cerrar sesión,
                     IconButton(onClick = {
                         auth.signOut()
-                        onClickLogout() // Esta llamada ejecuta la navegación hacia atrás
+                        onClickLogout() // se ejecuta la navegación hacia atrás
                     }) {
                         Icon(Icons.AutoMirrored.Filled.ExitToApp, "Salir de la app")
                     }
@@ -161,10 +158,8 @@ fun HomeScreen(onClickLogout: () -> Unit = {}) {
     }
 }
 
-/**
- * Composable reutilizable para mostrar la información de un solo producto.
- * Es una buena práctica separar la lógica de la UI en componentes más pequeños.
- */
+
+// es un composable que muestra una tarjeta con información de un producto
 @Composable
 fun ProductCard(product: Product) {
     Card(
@@ -200,6 +195,6 @@ fun ProductCard(product: Product) {
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    // Para la preview, podemos simular el onClickLogout sin hacer nada
+
     HomeScreen(onClickLogout = {})
 }

@@ -6,10 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel para gestionar el estado y la lógica de negocio de los productos.
- * Actúa como intermediario entre la UI (Compose) y el Repositorio.
- */
+
+// ViewModel para gestionar el estado y la lógica de negocio de los productos.
+// Actúa como intermediario entre la UI (Compose) y el Repositorio.
 class ProductoViewModel : ViewModel() {
 
     private val repository = ProductoRepository()
@@ -21,13 +20,13 @@ class ProductoViewModel : ViewModel() {
     val productos: StateFlow<List<Producto>> = _productos
 
     init {
-        // Al iniciar el ViewModel, comenzamos a escuchar los productos en tiempo real.
+
         escucharCambiosEnProductos()
     }
 
     private fun escucharCambiosEnProductos() {
         repository.obtenerProductosEnTiempoReal(
-            onError = { /* Opcional: Manejar el error, por ej. mostrar un Toast */ },
+            onError = {  },
             onResult = { listaDeProductos ->
                 // Cuando el repositorio nos da una nueva lista, actualizamos el estado.
                 _productos.value = listaDeProductos
@@ -35,24 +34,22 @@ class ProductoViewModel : ViewModel() {
         )
     }
 
-    /**
-     * Llama al repositorio para agregar un nuevo producto.
-     * Se ejecuta en una corutina para no bloquear el hilo principal.
-     */
+
+    // Llama al repositorio para agregar un nuevo producto.
+
     fun agregarProducto(producto: Producto) {
         viewModelScope.launch {
             try {
                 repository.agregarProducto(producto)
-                // Opcional: Mostrar mensaje de éxito.
+
             } catch (e: Exception) {
-                // Opcional: Manejar error, por ej. mostrar un mensaje al usuario.
+
             }
         }
     }
 
-    /**
-     * Llama al repositorio para eliminar un producto.
-     */
+
+    // Llama al repositorio para eliminar un producto.
     fun eliminarProducto(productoId: String) {
         viewModelScope.launch {
             try {
